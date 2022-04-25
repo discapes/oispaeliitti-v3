@@ -1,14 +1,7 @@
-import { mkQuery } from './util.js'
+import { makeURL } from './util.js'
 import { get } from "svelte/store";
 
-export default async function connectAccount(name, secret) {
-    let account = new Account(name, secret);
-    await account.connect();
-    return account;
-}
-
-
-class Account {
+export default class Account {
 
     constructor(name, secret) {
         if (name === undefined) throw new BadRequestError();
@@ -18,7 +11,7 @@ class Account {
     async connect() {
         if (this.secret === undefined) {
             console.log("Creating new account with name " + this.name);
-            let url = mkQuery('account/new', { name: this.name });
+            let url = makeURL('account/new', { name: this.name });
             let res = await fetch(url);
 
             if (res.status === 404) throw new Error("Couldn't connect to endpoint: " + res.status);
@@ -32,7 +25,7 @@ class Account {
 
     async #getScore() {
         console.log("Getting score from server with name " + this.name + " with secret " + this.secret);
-        let url = mkQuery('account/getScore', { name: this.name, secret: this.secret });
+        let url = makeURL('account/getScore', { name: this.name, secret: this.secret });
         let res = await fetch(url);
 
         if (res.status === 404) throw new Error("Couldn't connect to endpoint: " + res.status);
@@ -45,14 +38,14 @@ class Account {
 
     async setScore(score) {
         console.log("Setting score to server with name " + this.name + " with secret " + this.secret);
-        let url = mkQuery('account/setScore', { str: String.fromCharCode(...encodeURIComponent(JSON.stringify({ name: this.name, secret: this.secret, score: get(score) })).split('').map(chr => chr.charCodeAt(0) * 2)) });
+        let url = makeURL('account/setScore', { str: String.fromCharCode(...encodeURIComponent(JSON.stringify({ name: this.name, secret: this.secret, score, })).split('').map(chr => chr.charCodeAt(0) * 2)) });
         let res = await fetch(url);
 
         if (res.status === 404) throw new Error("Couldn't connect to endpoint: " + res.status);
         else if (res.status !== 200) throw new Error((await res.text()));
 
-        console.log("Set score " + get(score));
-        this.score = get(score);
+        console.log("Set score " + score);
+        this.score = score;
     }
 }
 

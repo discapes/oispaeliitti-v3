@@ -1,5 +1,5 @@
 <script>
-    export let highscores = [];
+    export let leaderboard = [];
 </script>
 
 <table class="w-full">
@@ -7,7 +7,7 @@
         <th>Highscore</th>
         <th class="w-full">Name</th>
     </tr>
-    {#each highscores as record}
+    {#each leaderboard as record}
         <tr>
             <td>{record.score}</td>
             <td>{record.name}</td>
@@ -16,8 +16,7 @@
 </table>
 
 <style>
-    	th,
-	td {
+    th,	td {
 		text-align: left;
 		border: 1px solid;
 		padding: 5px;

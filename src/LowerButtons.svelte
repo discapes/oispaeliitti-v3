@@ -1,32 +1,31 @@
 <script>
-    import { getContext } from "svelte";
+    import { createEventDispatcher, getContext } from "svelte";
+    const dispatch = createEventDispatcher();
 
-    export let game;
-    export let allowKatko;
-    let motiCost;
-    $: ({ motiCost } = game);
-    let { overlay } = getContext("uiState");
+    export let game, overlayType, ilmoituksetVersion;
     let { ilmoituksetVersion: netIlmoituksetVersion } = getContext("netData");
-    let { ilmoituksetVersion: locIlmoituksetVersion } = getContext("locData");
+
+    const setOverlay = (o) => overlayType = o;
+    $: baseOverlay = game.playing ? "" : (game.won ? "won" : "lost");
 </script>
 
 <div class="flex gap-3">
     <button
         class="textcontainer buttonfx"
         on:click={() => {
-            if (allowKatko) game.tryKatko();
+            if (!overlayType) dispatch('katko')
         }}>
-        Koeviikko&nbsp(-{$motiCost})
+        Koeviikko&nbsp(-{game.motiCost})
     </button>
-    <button class="textcontainer buttonfx" on:click={() => ($overlay = $overlay == "info" ? "" : "info")}> Info </button>
+    <button class="textcontainer buttonfx" on:click={() => setOverlay(overlayType == "info" ? baseOverlay : "info")}> Info </button>
     <button
         class="textcontainer buttonfx"
         on:click={() => {
-            $overlay = $overlay == "ilmoitukset" ? "" : "ilmoitukset";
-            $locIlmoituksetVersion = $netIlmoituksetVersion;
+            setOverlay(overlayType == "ilmoitukset" ? baseOverlay : "ilmoitukset");
+            ilmoituksetVersion = $netIlmoituksetVersion;
         }}>
-        Ilmoitukset {$locIlmoituksetVersion < $netIlmoituksetVersion ? "🔸" : ""}
+        Ilmoitukset {ilmoituksetVersion < $netIlmoituksetVersion ? "🔸" : ""}
     </button>
-    <button class="textcontainer buttonfx" on:click={() => ($overlay = $overlay == "musiikki" ? "" : "musiikki")}> Musiikki </button>
-    <button class="textcontainer buttonfx" on:click={() => ($overlay = $overlay == "tulokset" ? "" : "tulokset")}> Tulokset </button>
+    <button class="textcontainer buttonfx" on:click={() => setOverlay(overlayType == "musiikki" ? baseOverlay : "musiikki")}> Musiikki </button>
+    <button class="textcontainer buttonfx" on:click={() => setOverlay(overlayType == "tulokset" ? baseOverlay : "tulokset")}> Tulokset </button>
 </div>

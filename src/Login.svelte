@@ -1,24 +1,27 @@
 <script>
     import { fade } from "svelte/transition";
-    import connectAccount from "./account.js";
     import { getFormValues } from "./util.js";
-    import { createEventDispatcher } from "svelte";
+    import Account from "./account.js";
+    import { createEventDispatcher, onMount } from "svelte";
     const dispatch = createEventDispatcher();
 
     export let account;
     export let namefieldElem;
-    export let score;
 
     let response = "";
     let responseVisible = true;
     let clearResponseTimeout;
+
+    onMount(() => {
+        if (localStorage.getItem("saved-acc")) tryLogin(localStorage.getItem("saved-acc"));
+    });
 
     async function formHandler(e) {
         if (clearResponseTimeout) clearTimeout(clearResponseTimeout);
         response = "";
 
         if (account) {
-            if ($score < 3000 || confirm("This action resets the game. Continue?")) {
+            if (account.score < 3000 || confirm("This action resets the game. Continue?")) {
                 account = undefined;
                 dispatch("reset");
             }
@@ -31,7 +34,9 @@
     export async function tryLogin(name) {
         let secret = localStorage.getItem(name + "-secret") || undefined;
         try {
-            account = await connectAccount(name, secret);
+            const _account = new Account(name, secret);
+            await _account.connect();
+            account = _account;
 
             localStorage.setItem(account.name + "-secret", account.secret);
             localStorage.setItem("saved-acc", account.name);

@@ -1,8 +1,5 @@
-export function mkQuery(path, params = {}) {
+export function makeURL(path, params = {}) {
     return SERVER + "/" + path + "?" + new URLSearchParams(params).toString();
-}
-export function runQuery(path, params = {}) {
-    return fetch(mkQuery(path, params));
 }
 
 export function getFormValues(target) {
@@ -14,20 +11,24 @@ export function getFormValues(target) {
     }
     return data;
 }
-    
 
-export function setMelu(checked) {
-    let rootStyle = document.documentElement.style;
-    if (!checked) {
-        rootStyle.setProperty('--32image', 'url("../img/32.png")');
-        rootStyle.setProperty('--16image', 'url("../img/16.png")');
-    } else {
-        rootStyle.setProperty('--16image', 'url("../img/32.png")');
-        rootStyle.setProperty('--32image', 'url("../img/16.png")');
-    }
+export function clickOutside(node) {
+	const handleClick = (event) => {
+		if (!node.contains(event.target)) {
+			node.dispatchEvent(new CustomEvent("outclick"));
+		}
+	};
+
+	document.addEventListener("mousedown", handleClick, true);
+
+	return {
+		destroy() {
+			document.removeEventListener("mousedown", handleClick, true);
+		}
+	};
 }
 
-export function preload() {
+export function preloadImages() {
     for (let i = 2; i <= 4096; i *= 2) {
         let img = new Image();
         img.src = `../img/${i}.png`;

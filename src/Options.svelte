@@ -1,9 +1,9 @@
 <script>
-    import { clickOutside } from "./click_outside.js";
-    import { setMelu } from "./util.js";
+    import { clickOutside } from "./util";
     import ColorPicker from "./ColorPicker.svelte";
     export let sizex, sizey;
     export let gridHeightElem, gridWidthElem;
+
     let rawSizex = sizex;
     let rawSizey = sizey;
     $: if (typeof rawSizex == "number") sizex = rawSizex = Math.max(1, rawSizex);
@@ -42,6 +42,17 @@
     $: {
         localStorage.setItem("melu", melu);
         setMelu(melu);
+    }
+
+    function setMelu(checked) {
+        let rootStyle = document.documentElement.style;
+        if (!checked) {
+            rootStyle.setProperty("--32image", 'url("../img/32.png")');
+            rootStyle.setProperty("--16image", 'url("../img/16.png")');
+        } else {
+            rootStyle.setProperty("--16image", 'url("../img/32.png")');
+            rootStyle.setProperty("--32image", 'url("../img/16.png")');
+        }
     }
 </script>
 
