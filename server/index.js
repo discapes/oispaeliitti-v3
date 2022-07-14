@@ -49,13 +49,12 @@ app.get('/ilmoitukset', async (req, res) => {
     res.sendFile('ilmoitukset.html', { root: __dirname });
 });
 
-
-
 app.use(errorHandler);
-let port = 8443;
 
-let privateKey = await fs.readFile( 'privkey.pem' );
-let certificate = await fs.readFile('cert.pem' );
+const port = 8443;
+const hd = require('os').homedir();
+const privateKey = await fs.readFile(hd + '/privkey.pem' );
+const certificate = await fs.readFile(hd + '/cert.pem' );
 https.createServer({
     key: privateKey,
     cert: certificate
