@@ -1,331 +1,339 @@
 export default class Game {
-    score = 0;
-    moti = 0;
-    motiCost = calcMotiCost(1);
-    playing = true;
-    won = false;
-    katkoja = 0;
+	score = 0;
+	moti = 0;
+	motiCost = calcMotiCost(1);
+	playing = true;
+	won = false;
+	katkoja = 0;
 
-    constructor(sizex, sizey) {
-        console.log("Creating game");
-        const onWin = () => { if (this.won) return; this.won = true; this.playing = false; } ;
-        const onLoss = () => { if (this.lost) return; this.lost = true; this.playing = false; };
-        const onAddScore = (add) => {
-            this.score += add;
-            this.moti += add;
-        };
-        this.grid = new Grid(sizex, sizey, { onWin, onLoss, onAddScore });
-    }
+	constructor(sizex, sizey) {
+		console.log("Creating game");
+		const onWin = () => {
+			if (this.won) return;
+			this.won = true;
+			this.playing = false;
+		};
+		const onLoss = () => {
+			if (this.lost) return;
+			this.lost = true;
+			this.playing = false;
+		};
+		const onAddScore = (add) => {
+			this.score += add;
+			this.moti += add;
+		};
+		this.grid = new Grid(sizex, sizey, { onWin, onLoss, onAddScore });
+	}
 
-    move(dir) {
-        this.grid.move(dir);
-        return this;
-    }
+	move(dir) {
+		this.grid.move(dir);
+		return this;
+	}
 
-    tryKatko() {
-        if (this.moti >= this.motiCost) {
-            this.moti -= this.motiCost;
-            this.motiCost = calcMotiCost(++this.katkoja + 1);
-            this.grid.katkoReissu();
-            return true;
-        } else {
-            return false;
-        }
-    }
+	tryKatko() {
+		if (this.moti >= this.motiCost) {
+			this.moti -= this.motiCost;
+			this.motiCost = calcMotiCost(++this.katkoja + 1);
+			this.grid.katkoReissu();
+			return true;
+		} else {
+			return false;
+		}
+	}
 }
 
 function calcMotiCost(nthKatko) {
-    let x = nthKatko;
-    if (x <= 5) return INITIAL_MOTICOSTS[x - 1]; //50 * x^2 - (50 * x) + 1000;
-    else return 500 * x ** 2 - 4500 * x + 12000; // (2000), 3000, 5000, 8000, 12000
+	let x = nthKatko;
+	if (x <= 5) return INITIAL_MOTICOSTS[x - 1]; //50 * x^2 - (50 * x) + 1000;
+	else return 500 * x ** 2 - 4500 * x + 12000; // (2000), 3000, 5000, 8000, 12000
 }
 
 class Tile {
-    constructor(position, value) {
-        this.x = position.x;
-        this.y = position.y;
-        this.value = value || 2;
+	constructor(position, value) {
+		this.x = position.x;
+		this.y = position.y;
+		this.value = value || 2;
 
-        this.previousPosition = null;
-        this.mergedFrom = null; // Tracks tiles that merged together
-    }
+		this.previousPosition = null;
+		this.mergedFrom = null; // Tracks tiles that merged together
+	}
 
-    savePosition() {
-        this.previousPosition = { x: this.x, y: this.y };
-    }
+	savePosition() {
+		this.previousPosition = { x: this.x, y: this.y };
+	}
 
-    updatePosition(position) {
-        this.x = position.x;
-        this.y = position.y;
-    };
+	updatePosition(position) {
+		this.x = position.x;
+		this.y = position.y;
+	}
 }
 
 class Grid {
+	/* subs { onWin, onLoss, onAddScore } */
+	constructor(sizex, sizey, subs) {
+		this.sizex = sizex;
+		this.sizey = sizey;
 
-    /* subs { onWin, onLoss, onAddScore } */
-    constructor(sizex, sizey, subs) {
-        this.sizex = sizex;
-        this.sizey = sizey;
-        
-        this.subs = subs
+		this.subs = subs;
 
-        this.cells = Array(sizex).fill().map(row => Array(sizey).fill(null));
-        this.addStartTiles(START_TILES);
-        
-        if (!this.movesAvailable()) {
-            this.subs.onLoss();
-        }
-    }
+		this.cells = Array(sizex)
+			.fill()
+			.map((row) => Array(sizey).fill(null));
+		this.addStartTiles(START_TILES);
 
-    // Find the first available random position
-    randomAvailableCell() {
-        let cells = this.availableCells();
+		if (!this.movesAvailable()) {
+			this.subs.onLoss();
+		}
+	}
 
-        if (cells.length) {
-            return cells[Math.floor(Math.random() * cells.length)];
-        }
-    }
+	// Find the first available random position
+	randomAvailableCell() {
+		let cells = this.availableCells();
 
-    availableCells() {
-        let cells = [];
+		if (cells.length) {
+			return cells[Math.floor(Math.random() * cells.length)];
+		}
+	}
 
-        this.eachCell((x, y, tile) => {
-            if (!tile) {
-                cells.push({ x: x, y: y });
-            }
-        });
+	availableCells() {
+		let cells = [];
 
-        return cells;
-    }
+		this.eachCell((x, y, tile) => {
+			if (!tile) {
+				cells.push({ x: x, y: y });
+			}
+		});
 
-    // Call callback for every cell
-    eachCell(callback) {
-        for (let x = 0; x < this.sizex; x++) {
-            for (let y = 0; y < this.sizey; y++) {
-                callback(x, y, this.cells[x][y]);
-            }
-        }
-    }
+		return cells;
+	}
 
-    // Check if there are any cells available
-    cellsAvailable() {
-        return !!this.availableCells().length;
-    }
+	// Call callback for every cell
+	eachCell(callback) {
+		for (let x = 0; x < this.sizex; x++) {
+			for (let y = 0; y < this.sizey; y++) {
+				callback(x, y, this.cells[x][y]);
+			}
+		}
+	}
 
-    // Check if the specified cell is taken
-    cellAvailable(cell) {
-        return !this.cellOccupied(cell);
-    }
+	// Check if there are any cells available
+	cellsAvailable() {
+		return !!this.availableCells().length;
+	}
 
-    cellOccupied(cell) {
-        return !!this.cellContent(cell);
-    }
+	// Check if the specified cell is taken
+	cellAvailable(cell) {
+		return !this.cellOccupied(cell);
+	}
 
-    cellContent(cell) {
-        if (this.withinBounds(cell)) {
-            return this.cells[cell.x][cell.y];
-        } else {
-            return null;
-        }
-    }
+	cellOccupied(cell) {
+		return !!this.cellContent(cell);
+	}
 
-    // Inserts a tile at its position
-    insertTile(tile) {
-        this.cells[tile.x][tile.y] = tile;
-    }
+	cellContent(cell) {
+		if (this.withinBounds(cell)) {
+			return this.cells[cell.x][cell.y];
+		} else {
+			return null;
+		}
+	}
 
-    removeTile(tile) {
-        this.cells[tile.x][tile.y] = null;
-    }
+	// Inserts a tile at its position
+	insertTile(tile) {
+		this.cells[tile.x][tile.y] = tile;
+	}
 
-    withinBounds(position) {
-        return position.x >= 0 && position.x < this.sizex &&
-            position.y >= 0 && position.y < this.sizey;
-    }
+	removeTile(tile) {
+		this.cells[tile.x][tile.y] = null;
+	}
 
-    // Set up the initial tiles to start the game with
-    addStartTiles(startTiles) {
-        for (let i = 0; i < startTiles; i++) {
-            this.addRandomTile();
-        }
-    }
+	withinBounds(position) {
+		return position.x >= 0 && position.x < this.sizex && position.y >= 0 && position.y < this.sizey;
+	}
 
-    // Adds a tile in a random position
-    addRandomTile() {
-        if (this.cellsAvailable()) {
-            let value = Math.random() < 0.9 ? 2 : 4;
-            let tile = new Tile(this.randomAvailableCell(), value);
+	// Set up the initial tiles to start the game with
+	addStartTiles(startTiles) {
+		for (let i = 0; i < startTiles; i++) {
+			this.addRandomTile();
+		}
+	}
 
-            this.insertTile(tile);
-        }
-    }
+	// Adds a tile in a random position
+	addRandomTile() {
+		if (this.cellsAvailable()) {
+			let value = Math.random() < 0.9 ? 2 : 4;
+			let tile = new Tile(this.randomAvailableCell(), value);
 
-    katkoReissu() {
-        for (let x = 0; x < this.sizex; x++) {
-            for (let y = 0; y < this.sizey; y++) {
-                if ((this.cells[x][y]) && (this.cells[x][y].value < 16)) {
-                    this.cells[x][y] = null;
-                }
-            }
-        }
-    }
+			this.insertTile(tile);
+		}
+	}
 
-    // Save all tile positions and remove merger info
-    prepareTiles() {
-        this.eachCell((x, y, tile) => {
-            if (tile) {
-                tile.mergedFrom = null;
-                tile.savePosition();
-            }
-        });
-    }
+	katkoReissu() {
+		for (let x = 0; x < this.sizex; x++) {
+			for (let y = 0; y < this.sizey; y++) {
+				if (this.cells[x][y] && this.cells[x][y].value < 16) {
+					this.cells[x][y] = null;
+				}
+			}
+		}
+	}
 
-    // Move a tile and its representation
-    moveTile(tile, cell) {
-        this.cells[tile.x][tile.y] = null;
-        this.cells[cell.x][cell.y] = tile;
-        tile.updatePosition(cell);
-    }
+	// Save all tile positions and remove merger info
+	prepareTiles() {
+		this.eachCell((x, y, tile) => {
+			if (tile) {
+				tile.mergedFrom = null;
+				tile.savePosition();
+			}
+		});
+	}
 
-    // Move tiles on the grid in the specified direction
-    move(direction) {
-        // 0: up, 1: right, 2:down, 3: left
+	// Move a tile and its representation
+	moveTile(tile, cell) {
+		this.cells[tile.x][tile.y] = null;
+		this.cells[cell.x][cell.y] = tile;
+		tile.updatePosition(cell);
+	}
 
-        let cell, tile;
+	// Move tiles on the grid in the specified direction
+	move(direction) {
+		// 0: up, 1: right, 2:down, 3: left
 
-        let vector = this.getVector(direction);
-        let traversals = this.buildTraversals(vector);
-        let moved = false;
+		let cell, tile;
 
-        // Save the current tile positions and remove merger information
-        this.prepareTiles();
+		let vector = this.getVector(direction);
+		let traversals = this.buildTraversals(vector);
+		let moved = false;
 
-        // Traverse the grid in the right direction and move tiles
-        traversals.x.forEach((x) => {
-            traversals.y.forEach((y) => {
-                cell = { x: x, y: y };
-                tile = this.cellContent(cell);
+		// Save the current tile positions and remove merger information
+		this.prepareTiles();
 
-                if (tile) {
-                    let positions = this.findFarthestPosition(cell, vector);
-                    let next = this.cellContent(positions.next);
+		// Traverse the grid in the right direction and move tiles
+		traversals.x.forEach((x) => {
+			traversals.y.forEach((y) => {
+				cell = { x: x, y: y };
+				tile = this.cellContent(cell);
 
-                    // Only one merger per row traversal?
-                    if (next && next.value === tile.value && !next.mergedFrom) {
-                        let merged = new Tile(positions.next, tile.value * 2);
-                        merged.mergedFrom = [tile, next];
+				if (tile) {
+					let positions = this.findFarthestPosition(cell, vector);
+					let next = this.cellContent(positions.next);
 
-                        this.insertTile(merged);
-                        this.removeTile(tile);
+					// Only one merger per row traversal?
+					if (next && next.value === tile.value && !next.mergedFrom) {
+						let merged = new Tile(positions.next, tile.value * 2);
+						merged.mergedFrom = [tile, next];
 
-                        // Converge the two tiles' positions
-                        tile.updatePosition(positions.next);
+						this.insertTile(merged);
+						this.removeTile(tile);
 
-                        // Update the score
-                        this.subs.onAddScore(merged.value);
+						// Converge the two tiles' positions
+						tile.updatePosition(positions.next);
 
-                        // The mighty 2048 tile
-                        if (merged.value === WIN_TILE) {
-                            this.subs.onWin();
-                        }
-                    } else {
-                        this.moveTile(tile, positions.farthest);
-                    }
+						// Update the score
+						this.subs.onAddScore(merged.value);
 
-                    if (!this.positionsEqual(cell, tile)) {
-                        moved = true; // The tile moved from its original cell!
-                    }
-                }
-            });
-        });
+						// The mighty 2048 tile
+						if (merged.value === WIN_TILE) {
+							this.subs.onWin();
+						}
+					} else {
+						this.moveTile(tile, positions.farthest);
+					}
 
-        if (moved) {
-            this.addRandomTile();
+					if (!this.positionsEqual(cell, tile)) {
+						moved = true; // The tile moved from its original cell!
+					}
+				}
+			});
+		});
 
-            if (!this.movesAvailable()) {
-                this.subs.onLoss();
-            }
-        }
-        return this;
-    }
+		if (moved) {
+			this.addRandomTile();
 
-    // Get the vector representing the chosen direction
-    getVector(direction) {
-        // Vectors representing tile movement
-        let map = {
-            0: { x: 0, y: -1 }, // up
-            1: { x: 1, y: 0 }, // right
-            2: { x: 0, y: 1 }, // down
-            3: { x: -1, y: 0 }, // left
-        };
+			if (!this.movesAvailable()) {
+				this.subs.onLoss();
+			}
+		}
+		return this;
+	}
 
-        return map[direction];
-    }
+	// Get the vector representing the chosen direction
+	getVector(direction) {
+		// Vectors representing tile movement
+		let map = {
+			0: { x: 0, y: -1 }, // up
+			1: { x: 1, y: 0 }, // right
+			2: { x: 0, y: 1 }, // down
+			3: { x: -1, y: 0 } // left
+		};
 
-    // Build a list of positions to traverse in the right order
-    buildTraversals(vector) {
-        let traversals = { x: [], y: [] };
+		return map[direction];
+	}
 
-        for (let pos = 0; pos < this.sizey; pos++) {
-            traversals.y.push(pos);
-        }
-        for (let pos = 0; pos < this.sizex; pos++) {
-            traversals.x.push(pos);
-        }
+	// Build a list of positions to traverse in the right order
+	buildTraversals(vector) {
+		let traversals = { x: [], y: [] };
 
-        // Always traverse from the farthest cell in the chosen direction
-        if (vector.x === 1) traversals.x = traversals.x.reverse();
-        if (vector.y === 1) traversals.y = traversals.y.reverse();
+		for (let pos = 0; pos < this.sizey; pos++) {
+			traversals.y.push(pos);
+		}
+		for (let pos = 0; pos < this.sizex; pos++) {
+			traversals.x.push(pos);
+		}
 
-        return traversals;
-    }
+		// Always traverse from the farthest cell in the chosen direction
+		if (vector.x === 1) traversals.x = traversals.x.reverse();
+		if (vector.y === 1) traversals.y = traversals.y.reverse();
 
-    findFarthestPosition(cell, vector) {
-        let previous;
+		return traversals;
+	}
 
-        // Progress towards the vector direction until an obstacle is found
-        do {
-            previous = cell;
-            cell = { x: previous.x + vector.x, y: previous.y + vector.y };
-        } while (this.withinBounds(cell) && this.cellAvailable(cell));
+	findFarthestPosition(cell, vector) {
+		let previous;
 
-        return {
-            farthest: previous,
-            next: cell, // Used to check if a merge is required
-        };
-    }
+		// Progress towards the vector direction until an obstacle is found
+		do {
+			previous = cell;
+			cell = { x: previous.x + vector.x, y: previous.y + vector.y };
+		} while (this.withinBounds(cell) && this.cellAvailable(cell));
 
-    movesAvailable() {
-        return this.cellsAvailable() || this.tileMatchesAvailable();
-    }
+		return {
+			farthest: previous,
+			next: cell // Used to check if a merge is required
+		};
+	}
 
-    // Check for available matches between tiles (more expensive check)
-    tileMatchesAvailable() {
-        let tile;
+	movesAvailable() {
+		return this.cellsAvailable() || this.tileMatchesAvailable();
+	}
 
-        for (let x = 0; x < this.sizex; x++) {
-            for (let y = 0; y < this.sizey; y++) {
-                tile = this.cellContent({ x: x, y: y });
+	// Check for available matches between tiles (more expensive check)
+	tileMatchesAvailable() {
+		let tile;
 
-                if (tile) {
-                    for (let direction = 0; direction < 4; direction++) {
-                        let vector = this.getVector(direction);
-                        let cell = { x: x + vector.x, y: y + vector.y };
+		for (let x = 0; x < this.sizex; x++) {
+			for (let y = 0; y < this.sizey; y++) {
+				tile = this.cellContent({ x: x, y: y });
 
-                        let other = this.cellContent(cell);
+				if (tile) {
+					for (let direction = 0; direction < 4; direction++) {
+						let vector = this.getVector(direction);
+						let cell = { x: x + vector.x, y: y + vector.y };
 
-                        if (other && other.value === tile.value) {
-                            return true; // These two tiles can be merged
-                        }
-                    }
-                }
-            }
-        }
+						let other = this.cellContent(cell);
 
-        return false;
-    }
+						if (other && other.value === tile.value) {
+							return true; // These two tiles can be merged
+						}
+					}
+				}
+			}
+		}
 
-    positionsEqual(first, second) {
-        return first.x === second.x && first.y === second.y;
-    }
+		return false;
+	}
+
+	positionsEqual(first, second) {
+		return first.x === second.x && first.y === second.y;
+	}
 }

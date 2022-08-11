@@ -19,65 +19,65 @@ app.use(cors);
 app.use("/account", accountRouter);
 
 app.get("/hello", async (req, res) => {
-    activePlayers.ping();
-    res.json({
-        greeting:
-            "Server operating normally\n" +
-            activePlayers.avgPingsPerSec +
-            " currently playing" +
-            "\nLocal time is " +
-            formatDate(new Date()) +
-            "\nDatabase: " +
-            (dbOK ? "connected" : "disconnected"),
-    });
+	activePlayers.ping();
+	res.json({
+		greeting:
+			"Server operating normally\n" +
+			activePlayers.avgPingsPerSec +
+			" currently playing" +
+			"\nLocal time is " +
+			formatDate(new Date()) +
+			"\nDatabase: " +
+			(dbOK ? "connected" : "disconnected")
+	});
 });
 
 let highscores = [];
 setInterval(async () => {
-    highscores = (await db.aggregate([{ $sort: { score: -1 } }, { $limit: 30 }]).toArray()).map((p) => ({ name: p.name, score: p.score }));
+	highscores = (await db.aggregate([{ $sort: { score: -1 } }, { $limit: 30 }]).toArray()).map((p) => ({ name: p.name, score: p.score }));
 }, 1000);
 
 app.get("/highscores", async (req, res) => {
-    res.json(highscores);
+	res.json(highscores);
 });
 
 app.get("/info", async (req, res) => {
-    res.sendFile("info.html", { root: __dirname });
+	res.sendFile("info.html", { root: __dirname });
 });
 
 app.get("/ilmoitukset", async (req, res) => {
-    res.set("version", 10);
-    res.sendFile("ilmoitukset.html", { root: __dirname });
+	res.set("version", 10);
+	res.sendFile("ilmoitukset.html", { root: __dirname });
 });
 
 app.use(errorHandler);
 
 const port = 8443;
 if (process.env.NODE_ENV === "dev") {
-    https.createServer(app).listen(port, () => console.log(`HTTP server listening on port ${port}`));
+	https.createServer(app).listen(port, () => console.log(`HTTP server listening on port ${port}`));
 } else {
-    const hd = require("os").homedir();
-    const privateKey = await fs.readFile(hd + "/privkey.pem");
-    const certificate = await fs.readFile(hd + "/cert.pem");
-    https
-        .createServer(
-            {
-                key: privateKey,
-                cert: certificate,
-            },
-            app
-        )
-        .listen(port, () => console.log(`HTTPS server listening on port ${port}`));
+	const hd = require("os").homedir();
+	const privateKey = await fs.readFile(hd + "/privkey.pem");
+	const certificate = await fs.readFile(hd + "/cert.pem");
+	https
+		.createServer(
+			{
+				key: privateKey,
+				cert: certificate
+			},
+			app
+		)
+		.listen(port, () => console.log(`HTTPS server listening on port ${port}`));
 }
 
 function cors(req, res, next) {
-    res.set("Access-Control-Allow-Origin", "*");
-    res.set("Access-Control-Expose-Headers", "*");
-    next();
+	res.set("Access-Control-Allow-Origin", "*");
+	res.set("Access-Control-Expose-Headers", "*");
+	next();
 }
 
 function errorHandler(err, req, res, next) {
-    console.error(err);
-    if (dev) res.send(err.stack);
-    else res.sendStatus(500);
+	console.error(err);
+	if (dev) res.send(err.stack);
+	else res.sendStatus(500);
 }

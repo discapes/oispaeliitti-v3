@@ -1,15 +1,15 @@
 export function makeURL(path, params = {}) {
-    return SERVER + "/" + path + "?" + new URLSearchParams(params).toString();
+	return SERVER + "/" + path + "?" + new URLSearchParams(params).toString();
 }
 
 export function getFormValues(target) {
-    const formData = new FormData(target);
-    const data = {};
-    for (let field of formData) {
-        const [key, value] = field;
-        data[key] = value;
-    }
-    return data;
+	const formData = new FormData(target);
+	const data = {};
+	for (let field of formData) {
+		const [key, value] = field;
+		data[key] = value;
+	}
+	return data;
 }
 
 export function clickOutside(node) {
@@ -29,8 +29,8 @@ export function clickOutside(node) {
 }
 
 export function preloadImages() {
-    for (let i = 2; i <= 4096; i *= 2) {
-        let img = new Image();
-        img.src = `../img/${i}.png`;
-    }
+	for (let i = 2; i <= 4096; i *= 2) {
+		let img = new Image();
+		img.src = `../img/${i}.png`;
+	}
 }
