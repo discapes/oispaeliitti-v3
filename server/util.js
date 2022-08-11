@@ -1,8 +1,4 @@
-import { createRequire } from "module";
-export const require = createRequire(import.meta.url);
-
 import { fileURLToPath } from "url";
-const path = require("path");
 export const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export function formatDate(date) {

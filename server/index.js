@@ -1,13 +1,14 @@
-import { require, __dirname } from "./util.js";
-const express = require("express");
-const fs = require("fs/promises");
-const path = require("path");
-const https = require("https");
-const app = express();
+import { __dirname } from "./util.js";
+import express from "express";
+import { readFile } from "fs/promises";
+import { createServer as HTTPSCreateServer } from "https";
+import { createServer as HTTPCreateServer } from "http";
 import db, { pingDB } from "./database.js";
 import { formatDate, PingCounter } from "./util.js";
 import accountRouter from "./account.js";
+import { homedir } from "os";
 
+const app = express();
 const dev = process.env.NODE_ENV == "dev";
 const activePlayers = new PingCounter(4);
 
@@ -54,20 +55,17 @@ app.use(errorHandler);
 
 const port = 8443;
 if (process.env.NODE_ENV === "dev") {
-	https.createServer(app).listen(port, () => console.log(`HTTP server listening on port ${port}`));
+	HTTPCreateServer(app).listen(port, () => console.log(`HTTP server listening on port ${port}`));
 } else {
-	const hd = require("os").homedir();
-	const privateKey = await fs.readFile(hd + "/privkey.pem");
-	const certificate = await fs.readFile(hd + "/cert.pem");
-	https
-		.createServer(
-			{
-				key: privateKey,
-				cert: certificate
-			},
-			app
-		)
-		.listen(port, () => console.log(`HTTPS server listening on port ${port}`));
+	const privateKey = await readFile(homedir + "/privkey.pem");
+	const certificate = await readFile(homedir + "/cert.pem");
+	HTTPSCreateServer(
+		{
+			key: privateKey,
+			cert: certificate
+		},
+		app
+	).listen(port, () => console.log(`HTTPS server listening on port ${port}`));
 }
 
 function cors(req, res, next) {

@@ -55,7 +55,7 @@ export default {
 		replace({
 			WIN_TILE: process.env.WIN_TILE,
 			START_TILES: process.env.START_TILES,
-			SERVER: process.env.SERVER,
+			SERVER: process.env.NODE_ENV === "dev" ? process.env.DEVSERVER : process.env.SERVER,
 			MAX_TILE: process.env.MAX_TILE,
 			INITIAL_MOTICOSTS: process.env.INITIAL_MOTICOSTS,
 			PRODUCTION: production
