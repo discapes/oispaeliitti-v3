@@ -6,6 +6,7 @@ import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
 import sveltePreprocess from 'svelte-preprocess';
 import replace from '@rollup/plugin-replace';
+import 'dotenv/config';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -55,11 +56,11 @@ export default {
 			}),
 		}),
 		replace({
-			WIN_TILE: 2048,
-			START_TILES: 2,
-			SERVER: '"https://oe1.miikat.dev:8443"',
-			MAX_TILE: 4096,
-			INITIAL_MOTICOSTS: "[1000, 1100, 1300, 1600, 2000]",
+			WIN_TILE: process.env.WIN_TILE,
+			START_TILES: process.env.START_TILES,
+			SERVER: process.env.SERVER,
+			MAX_TILE: process.env.MAX_TILE,
+			INITIAL_MOTICOSTS: process.env.INITIAL_MOTICOSTS,
 			PRODUCTION: production,
 		}),
 		// we'll extract any component CSS out into
