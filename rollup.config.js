@@ -7,6 +7,7 @@ import css from "rollup-plugin-css-only";
 import sveltePreprocess from "svelte-preprocess";
 import replace from "@rollup/plugin-replace";
 import "dotenv/config";
+import { readFile, writeFile } from "fs/promises";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -27,6 +28,16 @@ function serve() {
 
 			process.on("SIGTERM", toExit);
 			process.on("exit", toExit);
+		}
+	};
+}
+
+function bllist() {
+	return {
+		async writeBundle() {
+			const bll = (await readFile("src/bllist.html")).toString();
+			let newbll = bll.replace("__SERVER__", process.env.NODE_ENV === "dev" ? process.env.DEVSERVER : process.env.SERVER);
+			await writeFile("public/bllist.html", newbll);
 		}
 	};
 }
@@ -78,6 +89,8 @@ export default {
 		// In dev mode, call `npm run start` once
 		// the bundle has been generated
 		!production && serve(),
+
+		bllist(),
 
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production

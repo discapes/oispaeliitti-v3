@@ -7,6 +7,7 @@ import db, { pingDB } from "./database.js";
 import WebSocket, { WebSocketServer } from "ws";
 import { formatDate, PingCounter } from "./util.js";
 import accountRouter from "./account.js";
+import blocklistRouter, { blocklist } from "./blocklist.js";
 import { homedir } from "os";
 
 const app = express();
@@ -18,8 +19,8 @@ setTimeout(async () => (dbOK = await pingDB()), 1000);
 
 app.use(cors);
 
+app.use("/block_list", blocklistRouter);
 app.use("/account", accountRouter);
-
 app.get("/hello", async (req, res) => {
 	activePlayers.ping();
 	res.json({
@@ -36,7 +37,9 @@ app.get("/hello", async (req, res) => {
 
 let highscores = [];
 setInterval(async () => {
-	highscores = (await db.aggregate([{ $sort: { score: -1 } }, { $limit: 30 }]).toArray()).map((p) => ({ name: p.name, score: p.score }));
+	highscores = (await db.aggregate([{ $sort: { score: -1 } }, { $limit: 30 }]).toArray())
+		.filter((p) => !blocklist.some((swear) => p.name.includes(swear)))
+		.map((p) => ({ name: p.name, score: p.score }));
 }, 1000);
 
 app.get("/highscores", async (req, res) => {
