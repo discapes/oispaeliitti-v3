@@ -15,7 +15,7 @@
     "autoprefixer": "^10.4.5",
     "concurrently": "^7.1.0",
     "cross-env": "^7.0.3",
-    "nodemon": "^2.0.15",
+    "nodemon": "^2.0.19",
     "postcss": "^8.4.12",
     "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.1.0",
