@@ -1,7 +1,8 @@
 You can try the app at [oispaeliitti.miikat.dev](https://oispaeliitti.miikat.dev).
 
 ## Get started
-You need to have MongoDB running.
+
+Requirements: MongoDB running.
 
 Install the dependencies...
 
