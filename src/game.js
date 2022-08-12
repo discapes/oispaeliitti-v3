@@ -6,17 +6,19 @@ export default class Game {
 	won = false;
 	katkoja = 0;
 
-	constructor(sizex, sizey) {
+	constructor(sizex, sizey, onGameEnd) {
 		console.log("Creating game");
 		const onWin = () => {
 			if (this.won) return;
 			this.won = true;
 			this.playing = false;
+			onGameEnd();
 		};
 		const onLoss = () => {
 			if (this.lost) return;
 			this.lost = true;
 			this.playing = false;
+			onGameEnd();
 		};
 		const onAddScore = (add) => {
 			this.score += add;

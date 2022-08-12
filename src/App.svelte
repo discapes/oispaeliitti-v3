@@ -1,7 +1,6 @@
 <script>
 	if (PRODUCTION) console.log = () => 0;
-	import { writable, get } from "svelte/store";
-	import { setContext, onMount } from "svelte";
+	import { setContext } from "svelte";
 	import ServerDataFetcher from "./serverDataFetcher";
 	import Login from "./Login.svelte";
 	import Grid from "./Grid.svelte";
@@ -9,7 +8,6 @@
 	import Overlay from "./Overlay.svelte";
 	import LowerButtons from "./LowerButtons.svelte";
 	import Options from "./Options.svelte";
-	import Account from "./account";
 	import Game from "./game";
 	import { preloadImages } from "./util.js";
 	import TopBar from "./TopBar.svelte";
@@ -31,26 +29,30 @@
 	let sizex = 4;
 	let sizey = 4;
 	let game;
-	$: game = new Game(sizex, sizey);
+	$: game = new Game(sizex, sizey, onGameEnd);
 
-	$: game, console.log("game changed");
-	$: {
-		/*  important reminder
-                if (!game.playing) overlayType = (game.won ? "won" : "lost");
-            the above code would result in https://github.com/sveltejs/svelte/issues/7704
-        */
-		stupidWorkaround();
+	function onKeepPlaying() {
+		game.playing = true;
+		overlayType = "";
+	}
+	function onGameEnd() {
+		overlayType = game.won ? "won" : "lost";
+	}
+
+	$: gameChanged(game);
+
+	function gameChanged(game) {
 		if (sizex === 4 && sizey === 4) {
-			if (game.score > highscore) highscore = game.score;
-			if (account && game.score > account.score) {
-				account.setScore(game.score);
+			highscore = Math.max(game.score, highscore);
+			updateAccount(game.score);
+		}
+
+		function updateAccount(newScore) {
+			if (account && newScore > account.score) {
+				account.setScore(newScore);
 				account = account;
 			}
 		}
-	}
-	function stupidWorkaround() {
-		if (!game.playing) () => (overlayType = game.won ? "won" : "lost");
-		else if ("won/lost".includes(overlayType)) overlayType = "";
 	}
 
 	let namefieldElem, gridWidthElem, gridHeightElem;
@@ -102,14 +104,14 @@
 			{account}
 			type={overlayType}
 			leaderboard={$leaderboard}
-			on:keepplaying={() => (game.playing = true)}
+			on:keepplaying={onKeepPlaying}
 			on:tryagain={() => (game = new Game(sizex, sizey))}
 		/>
 		<Grid grid={game.grid} />
 	</div>
 
 	<div class="gridhello w-[320px]">
-		<!-- <Options bind:gridWidthElem bind:gridHeightElem bind:sizex bind:sizey /> -->
+		<Options bind:gridWidthElem bind:gridHeightElem bind:sizex bind:sizey />
 		<br />
 		<pre class="needscontrast rounded p-1">{$motd.greeting}</pre>
 	</div>
