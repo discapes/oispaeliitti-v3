@@ -1,5 +1,4 @@
-import { require } from "./util.js";
-const { MongoClient } = require("mongodb");
+import { MongoClient } from "mongodb";
 
 const mongoClient = new MongoClient("mongodb://127.0.0.1:27017");
 await mongoClient.connect();

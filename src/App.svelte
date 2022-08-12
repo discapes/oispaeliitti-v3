@@ -99,6 +99,7 @@
 
 	<div class="gridgrid relative">
 		<Overlay
+			{account}
 			type={overlayType}
 			leaderboard={$leaderboard}
 			on:keepplaying={() => (game.playing = true)}

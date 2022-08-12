@@ -1,10 +1,12 @@
 <script>
 	import { getContext, createEventDispatcher } from "svelte";
+	import Chat from "./Chat.svelte";
 	const dispatch = createEventDispatcher();
 	import Leaderboard from "./Leaderboard.svelte";
 
 	export let leaderboard;
 	export let type;
+	export let account;
 	const { ilmoituksetHTML, infoHTML } = getContext("netData");
 </script>
 
@@ -14,6 +16,8 @@
 			{@html $infoHTML}
 		{:else if type === "ilmoitukset"}
 			{@html $ilmoituksetHTML}
+		{:else if type === "chat"}
+			<Chat {account} />
 		{:else if type === "tulokset"}
 			<div class="border rounded rounded-br-none overflow-y-auto overflow-x-hidden">
 				<Leaderboard leaderboard={leaderboard.slice(0, 30)} />

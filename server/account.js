@@ -1,7 +1,6 @@
-import { require } from "./util.js";
 import db from "./database.js";
 import { v4 as uuid } from "uuid";
-const express = require("express");
+import * as express from "express";
 
 const router = express.Router();
 export default router;

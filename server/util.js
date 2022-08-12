@@ -1,5 +1,6 @@
 import { fileURLToPath } from "url";
-export const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import { dirname } from "path";
+export const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export function formatDate(date) {
 	let y = date.getFullYear();

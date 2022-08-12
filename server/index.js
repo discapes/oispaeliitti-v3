@@ -4,6 +4,7 @@ import { readFile } from "fs/promises";
 import { createServer as HTTPSCreateServer } from "https";
 import { createServer as HTTPCreateServer } from "http";
 import db, { pingDB } from "./database.js";
+import WebSocket, { WebSocketServer } from "ws";
 import { formatDate, PingCounter } from "./util.js";
 import accountRouter from "./account.js";
 import { homedir } from "os";
@@ -54,19 +55,32 @@ app.get("/ilmoitukset", async (req, res) => {
 app.use(errorHandler);
 
 const port = 8443;
+let server;
 if (process.env.NODE_ENV === "dev") {
-	HTTPCreateServer(app).listen(port, () => console.log(`HTTP server listening on port ${port}`));
+	server = HTTPCreateServer(app);
+	server.listen(port, () => console.log(`HTTP server listening on port ${port}`));
 } else {
 	const privateKey = await readFile(homedir + "/privkey.pem");
 	const certificate = await readFile(homedir + "/cert.pem");
-	HTTPSCreateServer(
+	server = HTTPSCreateServer(
 		{
 			key: privateKey,
 			cert: certificate
 		},
 		app
-	).listen(port, () => console.log(`HTTPS server listening on port ${port}`));
+	);
+	server.listen(port, () => console.log(`HTTPS server listening on port ${port}`));
 }
+const wss = new WebSocketServer({ server });
+wss.on("connection", (ws) => {
+	ws.on("message", (data, isBinary) => {
+		[...wss.clients]
+			.filter((c) => c.readyState === WebSocket.OPEN)
+			.forEach((c) => {
+				c.send(data, { binary: isBinary });
+			});
+	});
+});
 
 function cors(req, res, next) {
 	res.set("Access-Control-Allow-Origin", "*");

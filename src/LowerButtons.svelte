@@ -30,4 +30,5 @@
 	</button>
 	<button class="textcontainer buttonfx" on:click={() => setOverlay(overlayType == "musiikki" ? baseOverlay : "musiikki")}> Musiikki </button>
 	<button class="textcontainer buttonfx" on:click={() => setOverlay(overlayType == "tulokset" ? baseOverlay : "tulokset")}> Tulokset </button>
+	<button class="textcontainer buttonfx" on:click={() => setOverlay(overlayType == "chat" ? baseOverlay : "chat")}> Chat </button>
 </div>
