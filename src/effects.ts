@@ -12,7 +12,6 @@ class Remembered implements Options {
 	default: string;
 	constructor(options: Options) {
 		const lsItem = localStorage.getItem(`setting-${options.name}`);
-		console.log(lsItem);
 		this.value = lsItem ? JSON.parse(lsItem) : options.default;
 		this.options = options;
 		this.name = options.name;

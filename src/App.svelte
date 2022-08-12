@@ -13,6 +13,7 @@
 	import TopBar from "./TopBar.svelte";
 
 	preloadImages();
+	$: gameChanged(game); // needs to be above highscore reactivity
 
 	let ilmoituksetVersion = +localStorage.getItem("ilmoitukset-version") || 0;
 	$: localStorage.setItem("ilmoitukset-version", ilmoituksetVersion);
@@ -38,8 +39,10 @@
 	function onGameEnd() {
 		overlayType = game.won ? "won" : "lost";
 	}
-
-	$: gameChanged(game);
+	function onTryAgain() {
+		game = new Game(sizex, sizey);
+		overlayType = "";
+	}
 
 	function gameChanged(game) {
 		if (sizex === 4 && sizey === 4) {
@@ -100,13 +103,7 @@
 	</div>
 
 	<div class="gridgrid relative">
-		<Overlay
-			{account}
-			type={overlayType}
-			leaderboard={$leaderboard}
-			on:keepplaying={onKeepPlaying}
-			on:tryagain={() => (game = new Game(sizex, sizey))}
-		/>
+		<Overlay {account} type={overlayType} leaderboard={$leaderboard} on:keepplaying={onKeepPlaying} on:tryagain={onTryAgain} />
 		<Grid grid={game.grid} />
 	</div>
 
