@@ -51,7 +51,7 @@ app.get("/info", async (req, res) => {
 });
 
 app.get("/ilmoitukset", async (req, res) => {
-	res.set("version", 10);
+	res.set("version", 11);
 	res.sendFile("ilmoitukset.html", { root: __dirname });
 });
 
@@ -79,6 +79,7 @@ const buffer = [];
 wss.on("connection", (ws) => {
 	buffer.forEach((msg) => ws.send(msg));
 	ws.on("message", (data, isBinary) => {
+		if (!data || !data.replaceAll(" ", "")) return;
 		if (blocklist.some((swear) => data.includes(swear))) return;
 		buffer.push(data.toString());
 		if (buffer.length > 10) buffer.shift();
