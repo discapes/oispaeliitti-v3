@@ -124,6 +124,11 @@
 	/* @tailwind components; */
 	@tailwind utilities;
 
+	html {
+		transform: scale(0.8);
+		transform-origin: top center;
+	}
+
 	h1 {
 		@apply uppercase text-6xl font-thin;
 	}

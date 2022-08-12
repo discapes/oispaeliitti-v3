@@ -6,7 +6,10 @@ const router = express.Router();
 export default router;
 let bl;
 try {
-	bl = (await readFile(__dirname + "blocklist.txt")).toString().split(" ");
+	bl = (await readFile(__dirname + "blocklist.txt"))
+		.toString()
+		.split(" ")
+		.filter((i) => i);
 } catch (e) {
 	bl = [];
 }

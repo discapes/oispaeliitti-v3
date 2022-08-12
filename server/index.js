@@ -75,8 +75,13 @@ if (process.env.NODE_ENV === "dev") {
 	server.listen(port, () => console.log(`HTTPS server listening on port ${port}`));
 }
 const wss = new WebSocketServer({ server });
+const buffer = [];
 wss.on("connection", (ws) => {
+	buffer.forEach((msg) => ws.send(msg));
 	ws.on("message", (data, isBinary) => {
+		if (blocklist.some((swear) => data.includes(swear))) return;
+		buffer.push(data.toString());
+		if (buffer.length > 10) buffer.shift();
 		[...wss.clients]
 			.filter((c) => c.readyState === WebSocket.OPEN)
 			.forEach((c) => {

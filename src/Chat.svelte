@@ -18,6 +18,7 @@
 			ws.send(`${account.name} connected`);
 		};
 		ws.onmessage = (event) => {
+			console.log(event.data);
 			messages = [...messages, event.data];
 			tick().then(() => {
 				if (!tf) return;
