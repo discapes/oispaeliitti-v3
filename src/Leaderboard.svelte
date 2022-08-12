@@ -1,22 +1,22 @@
 <script>
-    export let highscores = [];
+	export let leaderboard = [];
 </script>
 
 <table class="w-full">
-    <tr>
-        <th>Highscore</th>
-        <th class="w-full">Name</th>
-    </tr>
-    {#each highscores as record}
-        <tr>
-            <td>{record.score}</td>
-            <td>{record.name}</td>
-        </tr>
-    {/each}
+	<tr>
+		<th>Highscore</th>
+		<th class="w-full">Name</th>
+	</tr>
+	{#each leaderboard as record}
+		<tr>
+			<td>{record.score}</td>
+			<td>{record.name}</td>
+		</tr>
+	{/each}
 </table>
 
 <style>
-    	th,
+	th,
 	td {
 		text-align: left;
 		border: 1px solid;

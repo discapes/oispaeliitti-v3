@@ -2,3 +2,6 @@
 /public/build/
 
 .DS_Store
+public/*.html
+!public/index.html
+server/blocklist.txt

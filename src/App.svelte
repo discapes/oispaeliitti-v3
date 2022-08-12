@@ -1,79 +1,85 @@
 <script>
 	if (PRODUCTION) console.log = () => 0;
-	import { writable, get } from "svelte/store";
-	import { setContext, onMount } from "svelte";
-	import convertCookies from "./convertcookies.js";
-	import { LocData, NetData } from "./data.js";
+	import { setContext } from "svelte";
+	import ServerDataFetcher from "./serverDataFetcher";
 	import Login from "./Login.svelte";
-	import Game from "./game.js";
 	import Grid from "./Grid.svelte";
-	import Scoreboard from "./Scoreboard.svelte";
+	import Leaderboard from "./Leaderboard.svelte";
 	import Overlay from "./Overlay.svelte";
 	import LowerButtons from "./LowerButtons.svelte";
 	import Options from "./Options.svelte";
-	import { preload } from "./util.js";
+	import Game from "./game";
+	import { preloadImages } from "./util.js";
+	import TopBar from "./TopBar.svelte";
 
-	if (localStorage.getItem("bestScore") && !localStorage.getItem("highscore")) convertCookies();
+	preloadImages();
+	$: gameChanged(game); // needs to be above highscore reactivity
 
-	preload();
+	let ilmoituksetVersion = +localStorage.getItem("ilmoitukset-version") || 0;
+	$: localStorage.setItem("ilmoitukset-version", ilmoituksetVersion);
+	let highscore = +localStorage.getItem("highscore") || 0;
+	$: localStorage.setItem("highscore", highscore);
 
-	let uiState = { overlay: writable("") };
-	let locData = new LocData();
-	let netData = new NetData(locData);
-	setContext("uiState", uiState);
-	setContext("locData", locData);
-	setContext("netData", netData);
+	const serverDataFetcher = new ServerDataFetcher();
+	setContext("netData", serverDataFetcher);
+	const { leaderboard, motd } = serverDataFetcher;
 
-	// Auto-subscription only works with store variables that are declared (or imported) at the top-level scope of a component.
-	let { highscores, motd } = netData;
-	let { highscore } = locData;
-	let { overlay } = uiState;
+	let overlayType = "";
+	let account;
 
 	let sizex = 4;
 	let sizey = 4;
-	let game, score, moti;
-	function newGame() {
-		game = new Game(sizex, sizey);
-		if (sizex === 4 && sizey === 4) game.score.subscribe((score) => ($highscore = Math.max($highscore, score)));
-		({ score, moti } = game);
+	let game;
+	$: game = new Game(sizex, sizey, onGameEnd);
+
+	function onKeepPlaying() {
+		game.playing = true;
+		overlayType = "";
 	}
-	$: sizex, sizey, newGame();
+	function onGameEnd() {
+		overlayType = game.won ? "won" : "lost";
+	}
+	function onTryAgain() {
+		game = new Game(sizex, sizey);
+		overlayType = "";
+	}
 
-	let account;
-	setInterval(async () => {
-		if (sizex === 4 && sizey === 4 && account && account.score < $score) {
-			await account.setScore(score); // takes in writable for obfuscation
-			account = account;
-		} 
-	}, 3000);
+	function gameChanged(game) {
+		if (sizex === 4 && sizey === 4) {
+			highscore = Math.max(game.score, highscore);
+			updateAccount(game.score);
+		}
 
-	let tryLogin;
-	onMount(() => {
-		if (localStorage.getItem("saved-acc")) tryLogin(localStorage.getItem("saved-acc"));
-	});
+		function updateAccount(newScore) {
+			if (account && newScore > account.score) {
+				account.setScore(newScore);
+				account = account;
+			}
+		}
+	}
 
 	let namefieldElem, gridWidthElem, gridHeightElem;
 	function handleKd(e) {
-		if ($overlay || [namefieldElem, gridWidthElem, gridHeightElem].includes(document.activeElement) || get(game.lost) || (get(game.won) && !get(game.keepPlaying))) return;
+		if (overlayType || [namefieldElem, gridWidthElem, gridHeightElem].includes(document.activeElement)) return;
 		switch (e.key.toLowerCase()) {
 			case "arrowup":
 			case "w":
-				game.move(0);
+				game = game.move(0);
 				break;
 			case "arrowleft":
 			case "a":
-				game.move(3);
+				game = game.move(3);
 				break;
 			case "arrowdown":
 			case "s":
-				game.move(2);
+				game = game.move(2);
 				break;
 			case "arrowright":
 			case "d":
-				game.move(1);
+				game = game.move(1);
 				break;
 			case "r":
-				newGame();
+				game = new Game(sizex, sizey);
 				break;
 		}
 	}
@@ -83,34 +89,22 @@
 <svelte:window on:keydown={handleKd} />
 <div class="p-4 inline-grid maingrid justify-center justify-items-center gap-3 min-w-[100vw]">
 	<div class="gridheader flex gap-3 justify-center whitespace-nowrap">
-		<h1 class="needscontrast p-1 rounded">Oispa eliitti</h1>
-		<div class="textcontainer">
-			Moti<br />
-			<b>{$moti}</b>
-		</div>
-		<div class="textcontainer">
-			Score<br />
-			<b>{$score}</b>
-		</div>
-		<div class="textcontainer">
-			Highscore<br />
-			<b>{$highscore}</b>
-		</div>
+		<TopBar {highscore} {game} />
 	</div>
 
-	<div class="gridhighscores w-[320px] ">
-		<div class="border needscontrast">
-			{#if $highscores}
-				<Scoreboard highscores={$highscores.slice(0, 10)} />
+	<div class="gridhighscores w-[320px]">
+		<div class="border needscontrast overflow-hidden">
+			{#if $leaderboard}
+				<Leaderboard leaderboard={$leaderboard.slice(0, 10)} />
 			{/if}
 		</div>
 		<br />
-		<Login on:reset={newGame} {score} bind:account bind:namefieldElem bind:tryLogin />
+		<Login bind:account on:reset={() => (game = new Game(sizex, sizey))} bind:namefieldElem />
 	</div>
 
 	<div class="gridgrid relative">
-		<Overlay {game} highscores={$highscores} on:tryagain={newGame} />
-		<Grid {game} {sizex} {sizey} />
+		<Overlay {account} type={overlayType} leaderboard={$leaderboard} on:keepplaying={onKeepPlaying} on:tryagain={onTryAgain} />
+		<Grid grid={game.grid} />
 	</div>
 
 	<div class="gridhello w-[320px]">
@@ -120,7 +114,7 @@
 	</div>
 
 	<div class="gridbuttons flex justify-center whitespace-nowrap">
-		<LowerButtons allowKatko={!$overlay} {game} />
+		<LowerButtons bind:ilmoituksetVersion {game} bind:overlayType on:katko={(() => game.tryKatko(), (game = game))} />
 	</div>
 </div>
 
@@ -128,6 +122,13 @@
 	@tailwind base;
 	/* @tailwind components; */
 	@tailwind utilities;
+
+	html {
+		transform: scale(0.8);
+		transform-origin: top center;
+		--16image: url("../img/16.png");
+		--32image: url("../img/32.png");
+	}
 
 	h1 {
 		@apply uppercase text-6xl font-thin;
