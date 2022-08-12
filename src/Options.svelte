@@ -14,6 +14,17 @@
 	let meluModeSel = meluMode.value;
 	$: background.set(backgroundSel);
 	$: meluMode.set(meluModeSel);
+
+	function onThemeColorChange(e) {
+		themeColor.set(e.detail);
+	}
+
+	function onTextColorChange(e) {
+		textColor.set(e.detail);
+	}
+
+	let pickerOpen = false;
+	let picker2Open = false;
 </script>
 
 <div class="needscontrast rounded p-1">
@@ -49,19 +60,19 @@
 			{/each}
 		</select>
 	</p>
-	<!-- <p>
+	<p>
 		Custom color: <button on:click={() => (pickerOpen = true)} class="align-text-top w-6 h-6 border bg-white/20" />
 	</p>
 	<div class:invisible={!pickerOpen} use:clickOutside on:outclick={() => (pickerOpen = false)} class="absolute translate-y-[10px]">
-		<ColorPicker startRGBA={rgba} on:colorChange={rgbaChange} />
+		<ColorPicker startRGBA={themeColor.value} on:colorChange={onThemeColorChange} />
 	</div>
 
 	<p>
 		Text color: <button on:click={() => (picker2Open = true)} class="align-text-top w-6 h-6 border bg-white/20" />
 	</p>
 	<div class:invisible={!picker2Open} use:clickOutside on:outclick={() => (picker2Open = false)} class="absolute translate-y-[10px]">
-		<ColorPicker startRGBA={rgba2} on:colorChange={rgbaChange2} />
-	</div> -->
+		<ColorPicker startRGBA={textColor.value} on:colorChange={onTextColorChange} />
+	</div>
 </div>
 
 <style global>

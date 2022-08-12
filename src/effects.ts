@@ -1,8 +1,8 @@
 interface Options {
 	name: string;
 	list?: string[];
-	default: string;
-	set(option: string): void;
+	default: any;
+	set(option: any): void;
 }
 
 class Remembered implements Options {
@@ -11,15 +11,17 @@ class Remembered implements Options {
 	name: string;
 	default: string;
 	constructor(options: Options) {
-		this.value = localStorage.getItem(`setting-${options.name}`) || options.default;
+		const lsItem = localStorage.getItem(`setting-${options.name}`);
+		console.log(lsItem);
+		this.value = lsItem ? JSON.parse(lsItem) : options.default;
 		this.options = options;
 		this.name = options.name;
 		this.default = options.default;
 	}
 	set(option: any) {
-		this.value = option.toString();
-		localStorage.setItem(`setting-${this.options.name}`, this.value);
-		this.options.set(option.toString());
+		this.value = option;
+		localStorage.setItem(`setting-${this.options.name}`, JSON.stringify(option));
+		this.options.set(option);
 	}
 	get list() {
 		return this.options.list;
@@ -56,18 +58,16 @@ export const meluMode = new Remembered(<Options>{
 
 export const themeColor = new Remembered(<Options>{
 	name: "themeColor",
-	default: "{ r: 255, g: 255, b: 255, a: 0.2 }",
-	set(option) {
-		const rgba = JSON.parse(option);
+	default: { r: 255, g: 255, b: 255, a: 0.2 },
+	set(rgba) {
 		document.documentElement.style.setProperty("--theme-bg", `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`);
 	}
 });
 
 export const textColor = new Remembered(<Options>{
 	name: "textColor",
-	default: "{ r: 0, g: 0, b: 0, a: 1 }",
-	set(option) {
-		const rgba = JSON.parse(option);
+	default: { r: 0, g: 0, b: 0, a: 1 },
+	set(rgba) {
 		document.documentElement.style.setProperty("--theme-text", `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`);
 	}
 });
