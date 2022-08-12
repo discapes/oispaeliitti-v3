@@ -129,6 +129,8 @@
 	html {
 		transform: scale(0.8);
 		transform-origin: top center;
+		--16image: url("../img/16.png");
+		--32image: url("../img/32.png");
 	}
 
 	h1 {

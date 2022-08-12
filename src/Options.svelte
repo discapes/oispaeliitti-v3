@@ -5,11 +5,13 @@
 	export let sizex, sizey;
 	export let gridHeightElem, gridWidthElem;
 
-	let rawSizex = sizex;
-	let rawSizey = sizey;
-	$: if (typeof rawSizex == "number") sizex = rawSizex = Math.max(1, rawSizex);
-	$: if (typeof rawSizey == "number") sizey = rawSizey = Math.max(1, rawSizey);
+	let sizeXSel = sizex;
+	let sizeYSel = sizey;
+	$: if (typeof sizeXSel == "number") sizex = sizeXSel = Math.max(1, sizeXSel);
+	$: if (typeof sizeYSel == "number") sizey = sizeYSel = Math.max(1, sizeYSel);
 
+	let backgroundSel = background.value;
+	let meluModeSel = meluMode.value;
 	$: background.set(backgroundSel);
 	$: meluMode.set(meluModeSel);
 </script>
@@ -21,13 +23,20 @@
 			bind:this={gridWidthElem}
 			class="bg-transparent border w-12 pl-1"
 			type="number"
-			bind:value={rawSizex}
+			bind:value={sizeXSel}
 			min="1"
 			max="50"
 		/><br />
 	</p>
 	<p>
-		Grid height: <input bind:this={gridHeightElem} class="bg-transparent border w-12 pl-1" type="number" bind:value={rawSizey} min="1" max="50" />
+		Grid height: <input
+			bind:this={gridHeightElem}
+			class="bg-transparent border w-12 pl-1"
+			type="number"
+			bind:value={sizeYSel}
+			min="1"
+			max="50"
+		/><br />
 	</p>
 	<p>
 		Melu moment: <input class="opacity-70" type="checkbox" bind:checked={meluModeSel} />
@@ -35,9 +44,9 @@
 	<p>
 		Background:
 		<select class="bg-transparent" bind:value={backgroundSel}>
-			<option class="bg-transparent" value="defaultbg">Default</option>
-			<option class="bg-transparent" value="darkbg">Dark</option>
-			<option class="bg-transparent" value="oldbg">Original</option>
+			{#each background.list as bg}
+				<option class="bg-transparent" value={bg}>{bg}</option>
+			{/each}
 		</select>
 	</p>
 	<!-- <p>
@@ -56,15 +65,6 @@
 </div>
 
 <style global>
-	body.oldbg {
-		background: ;
-	}
-	body.darkbg {
-		background-image: ;
-	}
-	body.defaultbg {
-		background-image: ;
-	}
 	.textcontainer,
 	.needscontrast {
 		background-color: var(--theme-bg);

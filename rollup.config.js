@@ -8,6 +8,7 @@ import sveltePreprocess from "svelte-preprocess";
 import replace from "@rollup/plugin-replace";
 import "dotenv/config";
 import { readFile, writeFile } from "fs/promises";
+import typescript from "@rollup/plugin-typescript";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -43,7 +44,7 @@ function bllist() {
 }
 
 export default {
-	input: "src/main.js",
+	input: "src/main.ts",
 	output: {
 		sourcemap: true,
 		format: "iife",
@@ -52,6 +53,7 @@ export default {
 	},
 	plugins: [
 		svelte({
+			preprocess: sveltePreprocess({ sourceMap: !production }),
 			compilerOptions: {
 				// enable run-time checks when not in production
 				dev: !production
@@ -85,6 +87,10 @@ export default {
 			dedupe: ["svelte"]
 		}),
 		commonjs(),
+		typescript({
+			sourceMap: !production,
+			inlineSources: !production
+		}),
 
 		// In dev mode, call `npm run start` once
 		// the bundle has been generated

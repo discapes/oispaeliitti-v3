@@ -68,8 +68,6 @@
 		width: 110px;
 		height: 110px;
 		overflow: hidden;
-		--16image: url("../img/16.png");
-		--32image: url("../img/32.png");
 	}
 
 	.tile {
