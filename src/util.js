@@ -1,5 +1,5 @@
 export function makeURL(path, params = {}) {
-	return SERVER + "/" + path + "?" + new URLSearchParams(params).toString();
+	return "SERVER" + "/" + path + "?" + new URLSearchParams(params).toString();
 }
 
 export function getFormValues(target) {

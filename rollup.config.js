@@ -37,7 +37,7 @@ function bllist() {
 	return {
 		async writeBundle() {
 			const bll = (await readFile("src/bllist.html")).toString();
-			let newbll = bll.replace("__SERVER__", process.env.NODE_ENV === "dev" ? process.env.DEVSERVER : process.env.SERVER);
+			let newbll = bll.replaceAll("__SERVER__", process.env.NODE_ENV === "dev" ? process.env.DEVSERVER : process.env.SERVER);
 			await writeFile("public/bllist.html", newbll);
 		}
 	};

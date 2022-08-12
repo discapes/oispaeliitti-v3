@@ -32,12 +32,12 @@
 	</head>
 
 	<body>
-		<form method="post" action="http://__SERVER__/block_list">
+		<form method="post" action="__SERVER__/block_list">
 			<textarea name="text" class="w-full h-full"> </textarea>
 			<button type="submit">Save</button>
 		</form>
 		<script type="module">
-			const res = await fetch("http://__SERVER__/block_list");
+			const res = await fetch("__SERVER__/block_list");
 			document.querySelector("textarea").value = await res.text();
 		</script>
 	</body>
