@@ -79,7 +79,7 @@ const buffer = [];
 wss.on("connection", (ws) => {
 	buffer.forEach((msg) => ws.send(msg));
 	ws.on("message", (data, isBinary) => {
-		if (!data || !data.replaceAll(" ", "")) return;
+		if (!data.toString() || !data.toString().replaceAll(" ", "")) return;
 		if (blocklist.some((swear) => data.includes(swear))) return;
 		buffer.push(data.toString());
 		if (buffer.length > 10) buffer.shift();
