@@ -37,7 +37,7 @@ export const background = new Remembered({
 		document.body.style.background = this.namesToStyles.get(background);
 	},
 	namesToStyles: new Map([
-		["Default", `url("../bg.png")`],
+		["Light", `url("../bg.png")`],
 		["Dark", `url("../bginverted.png")`],
 		["Original", `url("../img/tausta.png") no-repeat fixed center center / cover`]
 	])

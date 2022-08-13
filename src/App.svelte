@@ -110,7 +110,7 @@
 	<div class="gridhello w-[320px]">
 		<Options bind:gridWidthElem bind:gridHeightElem bind:sizex bind:sizey />
 		<br />
-		<pre class="needscontrast rounded p-1">{$motd.greeting}</pre>
+		<pre class="overflow-x-scroll needscontrast rounded p-1">{$motd.greeting}</pre>
 	</div>
 
 	<div class="gridbuttons flex justify-center whitespace-nowrap">
@@ -124,8 +124,6 @@
 	@tailwind utilities;
 
 	html {
-		transform: scale(0.8);
-		transform-origin: top center;
 		--16image: url("../img/16.png");
 		--32image: url("../img/32.png");
 	}
