@@ -28,15 +28,14 @@
 		};
 	});
 
-	function keypress(e) {
-		if (e.key === "Enter") {
+	function onSubmit(e) {
+			e.preventDefault();
 			if (account) {
 				ws.send(`${account.name}: ${value}`);
 				value = "";
 			} else {
 				alert("Login to chat");
 			}
-		}
 	}
 </script>
 
@@ -52,7 +51,9 @@
 			{/each}
 		</table>
 	</div>
-	<input class="needscontrast bg-transparent p-0.5 pl-1 border" bind:value on:keypress={keypress} />
+	<form class="w-full" on:submit={onSubmit}>
+	<input class="needscontrast bg-transparent p-0.5 pl-1 border" bind:value />
+	</form>
 </div>
 
 <style>

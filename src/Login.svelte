@@ -56,7 +56,7 @@
 {/if}
 <form on:submit|preventDefault={formHandler}>
 	<div class="flex w-full gap-3">
-		<input bind:this={namefieldElem} name="name" type="text" placeholder="username" class="needscontrast bg-transparent p-0.5 pl-1 border" />
+		<input bind:this={namefieldElem} name="name" type="text" placeholder="username" class="needscontrast bg-transparent p-0.5 pl-1 border w-full" />
 		<button class="textcontainer buttonfx !p-0.5">{!account ? "Enter" : "Reset"}</button>
 	</div>
 </form>
