@@ -6,9 +6,10 @@ import { terser } from "rollup-plugin-terser";
 import css from "rollup-plugin-css-only";
 import sveltePreprocess from "svelte-preprocess";
 import replace from "@rollup/plugin-replace";
-import "dotenv/config";
 import { readFile, writeFile } from "fs/promises";
 import typescript from "@rollup/plugin-typescript";
+import * as dotenv from "dotenv";
+dotenv.config({ path: "config.env" });
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -37,8 +38,8 @@ function bllist() {
 	return {
 		async writeBundle() {
 			const bll = (await readFile("src/bllist.html")).toString();
-			let newbll = bll.replaceAll("__SERVER__", process.env.NODE_ENV === "dev" ? process.env.DEVSERVER : process.env.SERVER);
-			await writeFile("public/bllist.html", newbll);
+			let newbll = bll.replaceAll("__HTTP_SERVER__", process.env.HTTP_SERVER);
+			await writeFile(`public/${process.env.BLLIST_SECRET_URL}.html`, newbll);
 		}
 	};
 }
@@ -68,7 +69,8 @@ export default {
 		replace({
 			WIN_TILE: process.env.WIN_TILE,
 			START_TILES: process.env.START_TILES,
-			SERVER: process.env.NODE_ENV === "dev" ? process.env.DEVSERVER : process.env.SERVER,
+			HTTP_SERVER: process.env.HTTP_SERVER,
+			WS_SERVER: process.env.WS_SERVER,
 			MAX_TILE: process.env.MAX_TILE,
 			INITIAL_MOTICOSTS: process.env.INITIAL_MOTICOSTS,
 			PRODUCTION: production

@@ -8,7 +8,7 @@
 	let messages = [];
 	let value;
 	let tf;
-	const url = "wss://aws1.miikat.dev:8443";
+	const url = "WS_SERVER";
 	let ws;
 
 	onMount(async () => {
