@@ -15,7 +15,7 @@
 		ws = new WebSocket(url);
 		ws.onopen = () => {
 			if (!account) return;
-			ws.send(`${account.name} connected`);
+//			ws.send(`${account.name} connected`);
 		};
 		ws.onmessage = (event) => {
 			console.log(event.data);
