@@ -9,6 +9,7 @@ import { formatDate, PingCounter } from "./util.js";
 import accountRouter from "./account.js";
 import blocklistRouter, { blocklist } from "./blocklist.js";
 import { homedir } from "os";
+import { createWriteStream } from "fs";
 
 const app = express();
 const dev = process.env.NODE_ENV == "dev";
@@ -75,11 +76,13 @@ if (process.env.NODE_ENV === "dev") {
 	server.listen(port, () => console.log(`HTTPS server listening on port ${port}`));
 }
 const wss = new WebSocketServer({ server });
+const logStream = createWriteStream('log.txt', {flags: 'a'});
 const buffer = [];
 wss.on("connection", (ws) => {
 	buffer.forEach((msg) => ws.send(msg));
 	ws.on("message", (data, isBinary) => {
 		if (!data.toString() || !data.toString().replaceAll(" ", "")) return;
+		logStream.write(data.toString() + "\n");
 		if (blocklist.some((swear) => data.includes(swear))) return;
 		buffer.push(data.toString());
 		if (buffer.length > 10) buffer.shift();
