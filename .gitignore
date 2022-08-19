@@ -5,3 +5,4 @@
 public/*.html
 !public/index.html
 server/blocklist.txt
+log.txt
