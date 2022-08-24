@@ -13,7 +13,9 @@
 	<button
 		class="textcontainer buttonfx"
 		on:click={() => {
-			if (!overlayType) dispatch("katko");
+			if (!overlayType) {
+				dispatch("katko");
+			}
 		}}
 	>
 		Koeviikko&nbsp(-{game.motiCost})

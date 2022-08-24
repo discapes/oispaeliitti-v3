@@ -114,7 +114,15 @@
 	</div>
 
 	<div class="gridbuttons flex justify-center whitespace-nowrap">
-		<LowerButtons bind:ilmoituksetVersion {game} bind:overlayType on:katko={(() => game.tryKatko(), (game = game))} />
+		<LowerButtons
+			bind:ilmoituksetVersion
+			{game}
+			bind:overlayType
+			on:katko={() => {
+				game.tryKatko();
+				game = game;
+			}}
+		/>
 	</div>
 </div>
 
