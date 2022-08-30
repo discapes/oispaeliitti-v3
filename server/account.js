@@ -29,7 +29,13 @@ function deawesomemize(str) {
 }
 
 router.get("/setScore", async (req, res) => {
-	let { name, secret, score } = JSON.parse(deawesomemize(req.query.str));
+	let { name, secret, score };
+	try {
+		({ name, secret, score} = JSON.parse(deawesomemize(req.query.str)));
+	} catch (e) {
+		console.error(e);
+		return res.sendStatus(400);
+	}
 
 	if (!name || !secret || !score) return res.sendStatus(400);
 
