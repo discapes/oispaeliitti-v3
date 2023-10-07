@@ -18,7 +18,7 @@
     "concurrently": "^7.3.0",
     "cross-env": "^7.0.3",
     "nodemon": "^2.0.19",
-    "postcss": "^8.4.16",
+    "postcss": "^8.4.31",
     "prettier": "^2.7.1",
     "prettier-plugin-svelte": "^2.7.0",
     "rollup": "^2.77.3",
